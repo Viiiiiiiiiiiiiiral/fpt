@@ -2,8 +2,12 @@ var express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const NodeCache = require( "node-cache" );
 var bodyParser = require('body-parser');
+var cors = require('cors');
 
 var app = express();
+
+
+app.use(cors());
 
 const myCache = new NodeCache();
 var jsonParser = bodyParser.json();
@@ -67,11 +71,11 @@ app.post('/orders', jsonParser, async (req, res) => {
     const productInfo = [];
     let totalPrice = 0;
     productList.forEach((e) => {
-        const foundProduct = products.find((v) => v.ID == e.id);
+        const foundProduct = products.find((v) => v.ID == e.ID);
         if (foundProduct && e.quantity) {
             totalPrice += Number(foundProduct.Price.split('$')[1]) * Number(e.quantity);
             productInfo.push({
-                quantity: e.quantity,
+                Quantity: e.quantity,
                 product: foundProduct,
             })
         };
@@ -83,6 +87,7 @@ app.post('/orders', jsonParser, async (req, res) => {
         'Total': '$' + totalPrice,
     })
     await myCache.set('order', orders);
+    console.log(orders)
     res.send({
         'ID': id,
         'Product': productInfo,
